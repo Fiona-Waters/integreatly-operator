@@ -2,18 +2,22 @@ package controllers
 
 import (
 	"context"
+	"time"
+
 	rhmiconfigv1alpha1 "github.com/integr8ly/integreatly-operator/apis/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	usersv1 "github.com/openshift/api/user/v1"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"time"
 )
 
 var _ = Describe("APIManagementTenant controller", func() {
 	const (
-		TenantName      = "test-tenant-name"
-		TenantNamespace = "test-tenant-namespace-dev"
+		UserName        = "test-user"
+		TenantName      = "example"
+		TenantNamespace = "test-user-dev"
 
 		timeout  = time.Second * 30
 		interval = time.Millisecond * 250
@@ -23,6 +27,27 @@ var _ = Describe("APIManagementTenant controller", func() {
 		It("Should reconcile APIManagementTenant after some time", func() {
 			By("By creating a new APIManagementTenant CR")
 			ctx := context.Background()
+
+			// create test namespace
+			ns := &corev1.Namespace{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: TenantNamespace,
+				},
+			}
+			Expect(k8sClient.Create(ctx, ns)).Should(Succeed())
+
+			// create test user
+			user := &usersv1.User{
+				TypeMeta: metav1.TypeMeta{
+					APIVersion: "user.openshift.io/v1",
+					Kind:       "User",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: UserName,
+				},
+			}
+
+			Expect(k8sClient.Create(ctx, user)).Should(Succeed())
 
 			// Create a new APIManagementTenant CR
 			tenant := &rhmiconfigv1alpha1.APIManagementTenant{

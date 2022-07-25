@@ -19,9 +19,11 @@ package controllers
 import (
 	"context"
 	"path/filepath"
-	ctrl "sigs.k8s.io/controller-runtime"
 	"testing"
 
+	ctrl "sigs.k8s.io/controller-runtime"
+
+	rhmiv1alpha1 "github.com/integr8ly/integreatly-operator/apis/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -32,7 +34,8 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	rhmiv1alpha1 "github.com/integr8ly/integreatly-operator/apis/v1alpha1"
+	usersv1 "github.com/openshift/api/user/v1"
+	corev1 "k8s.io/api/core/v1"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -60,7 +63,9 @@ var _ = BeforeSuite(func(done Done) {
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths: []string{filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("..", "..", "config", "crd-sandbox", "bases")},
+		CRDDirectoryPaths: []string{
+			filepath.Join("..", "..", "config", "crd", "bases"), filepath.Join("..", "..", "config", "crd-sandbox", "bases"),
+		},
 	}
 
 	var err error
@@ -69,6 +74,10 @@ var _ = BeforeSuite(func(done Done) {
 	Expect(cfg).ToNot(BeNil())
 
 	err = rhmiv1alpha1.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
+	err = corev1.AddToScheme(scheme.Scheme)
+	Expect(err).NotTo(HaveOccurred())
+	err = usersv1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
 
 	// +kubebuilder:scaffold:scheme
