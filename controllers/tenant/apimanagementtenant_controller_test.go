@@ -23,9 +23,9 @@ var _ = Describe("APIManagementTenant controller", func() {
 		interval = time.Millisecond * 250
 	)
 
-	Context("When updating APIManagementTenant Status", func() {
-		It("Should reconcile APIManagementTenant after some time", func() {
-			By("By creating a new APIManagementTenant CR")
+	Context("APIManagementTenant CRs", func() {
+		It("Created APIManagementTenants should reconcile after some time", func() {
+			By("Creating a new APIManagementTenant CR")
 			ctx := context.Background()
 
 			// create test namespace
@@ -39,7 +39,7 @@ var _ = Describe("APIManagementTenant controller", func() {
 			// create test user
 			user := &usersv1.User{
 				TypeMeta: metav1.TypeMeta{
-					APIVersion: "user.openshift.io/v1",
+					APIVersion: usersv1.GroupVersion.String(),
 					Kind:       "User",
 				},
 				ObjectMeta: metav1.ObjectMeta{
@@ -52,7 +52,7 @@ var _ = Describe("APIManagementTenant controller", func() {
 			// Create a new APIManagementTenant CR
 			tenant := &rhmiconfigv1alpha1.APIManagementTenant{
 				TypeMeta: metav1.TypeMeta{
-					APIVersion: "integreatly.org/v1alpha1",
+					APIVersion: rhmiconfigv1alpha1.GroupVersion.String(),
 					Kind:       "APIManagementTenant",
 				},
 				ObjectMeta: metav1.ObjectMeta{
@@ -75,7 +75,7 @@ var _ = Describe("APIManagementTenant controller", func() {
 			// Confirm that the APIManagementTenant CR was created properly
 			Expect(createdTenant.Status.ProvisioningStatus).ShouldNot(Equal(""))
 
-			By("By checking that the APIManagementTenant CR has finished reconciling")
+			By("Checking that the APIManagementTenant CR has finished reconciling")
 			Eventually(func() (rhmiconfigv1alpha1.ProvisioningStatus, error) {
 				err := k8sClient.Get(ctx, tenantLookupKey, createdTenant)
 				if err != nil {
